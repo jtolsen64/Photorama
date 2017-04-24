@@ -112,14 +112,27 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="azd-gL-4zi">
-                                <rect key="frame" x="0.0" y="64" width="375" height="603"/>
+                                <rect key="frame" x="0.0" y="64" width="375" height="559"/>
                             </imageView>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Hi2-0e-hWE">
+                                <rect key="frame" x="0.0" y="623" width="375" height="44"/>
+                                <items>
+                                    <barButtonItem title="Tags" id="hJX-2x-xER">
+                                        <connections>
+                                            <segue destination="NwH-Bl-0Sk" kind="presentation" identifier="showTags" id="8gD-Ub-9eg"/>
+                                        </connections>
+                                    </barButtonItem>
+                                </items>
+                            </toolbar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="8Yb-hT-wex" firstAttribute="top" secondItem="azd-gL-4zi" secondAttribute="bottom" id="T8C-Pg-sYe"/>
+                            <constraint firstAttribute="bottom" secondItem="Hi2-0e-hWE" secondAttribute="bottom" id="6BP-kV-k7n"/>
                             <constraint firstItem="azd-gL-4zi" firstAttribute="top" secondItem="1lo-Vt-pJ3" secondAttribute="bottom" id="ZSV-bi-mtZ"/>
+                            <constraint firstAttribute="trailing" secondItem="Hi2-0e-hWE" secondAttribute="trailing" id="aGQ-e7-h8f"/>
                             <constraint firstItem="azd-gL-4zi" firstAttribute="leading" secondItem="I3G-VR-WmI" secondAttribute="leading" id="gks-oB-W7A"/>
+                            <constraint firstItem="Hi2-0e-hWE" firstAttribute="leading" secondItem="I3G-VR-WmI" secondAttribute="leading" id="k6t-As-hrI"/>
+                            <constraint firstItem="Hi2-0e-hWE" firstAttribute="top" secondItem="azd-gL-4zi" secondAttribute="bottom" id="lD2-Gf-e5G"/>
                             <constraint firstAttribute="trailing" secondItem="azd-gL-4zi" secondAttribute="trailing" id="nGN-a7-HP7"/>
                         </constraints>
                     </view>
@@ -129,7 +142,72 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dWe-jb-hbe" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1612" y="-645"/>
+            <point key="canvasLocation" x="1612" y="-645.42728635682158"/>
+        </scene>
+        <!--Tags-->
+        <scene sceneID="41G-nb-rka">
+            <objects>
+                <tableViewController id="O7o-DM-vlg" customClass="TagsViewController" customModule="Photorama" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="f6u-6S-t2M">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="UITableViewCell" textLabel="F51-4l-H5M" style="IBUITableViewCellStyleDefault" id="tyT-Wk-nqo">
+                                <rect key="frame" x="0.0" y="28" width="375" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="tyT-Wk-nqo" id="1AU-Mc-Hlm">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="F51-4l-H5M">
+                                            <rect key="frame" x="15" y="0.0" width="345" height="43"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="0.0"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="O7o-DM-vlg" id="jMM-g3-amK"/>
+                            <outlet property="delegate" destination="O7o-DM-vlg" id="0A7-CL-fRT"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Tags" id="LCC-wr-C87">
+                        <barButtonItem key="leftBarButtonItem" style="done" systemItem="done" id="1Op-mK-4yp">
+                            <connections>
+                                <action selector="done:" destination="O7o-DM-vlg" id="Ixk-3T-He9"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="lMQ-UD-jcX">
+                            <connections>
+                                <action selector="addNewTag:" destination="O7o-DM-vlg" id="B9B-jZ-c5E"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="4gc-m0-iVx" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1986" y="94"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="5aJ-dQ-7g7">
+            <objects>
+                <navigationController id="NwH-Bl-0Sk" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="uY0-YI-Cva">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="O7o-DM-vlg" kind="relationship" relationship="rootViewController" id="Xlb-sF-PPh"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FWf-yk-Zgg" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1033" y="94"/>
         </scene>
     </scenes>
 </document>

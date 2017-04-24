@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 enum ImageResult {
     case success(UIImage)
@@ -22,21 +23,63 @@ enum PhotosResult {
     case failure(Error)
 }
 
+enum TagsResult {
+    case success([Tag])
+    case failure(Error)
+}
+
 class PhotoStore {
     
     let imageStore = ImageStore()
+    
+    let persistentContainer: NSPersistentContainer = {
+        let container = NSPersistentContainer(name: "Photorama")
+        container.loadPersistentStores { (description, error) in
+            if let error = error {
+                print("Error setting up core data (\(error))")
+            }
+        }
+        return container
+    }()
+
     
     private let session: URLSession = {
         let config = URLSessionConfiguration.default
         return URLSession(configuration: config)
     }()
     
-    private func processPhotosRequest(data: Data?, error: Error?) -> PhotosResult {
+    private func processPhotosRequest(data: Data?,
+                                      error: Error?,
+                                      completion: @escaping (PhotosResult) -> Void) {
         guard let jsonData = data else {
-            return .failure(error!)
+            completion(.failure(error!))
+            return
         }
         
-        return FlickrAPI.photos(fromJSON: jsonData)
+        persistentContainer.performBackgroundTask {
+            (context) in
+            
+            let result = FlickrAPI.photos(fromJSON: jsonData, into: context)
+            
+            do {
+                try context.save()
+            } catch {
+                print("Error saving to Core Data: \(error)")
+                completion(.failure(error))
+                return
+            }
+            
+            switch result {
+            case let .success(photos):
+                let photoIDs = photos.map { return $0.objectID }
+                let viewContext = self.persistentContainer.viewContext
+                let viewContentPhotos =
+                    photoIDs.map { return viewContext.object(with: $0) } as! [Photo]
+                completion(.success(viewContentPhotos))
+            case .failure:
+                completion(result)
+            }
+        }
     }
     
     private func processImageRequest(data: Data?, error: Error?) -> ImageResult {
@@ -62,9 +105,12 @@ class PhotoStore {
         let task = session.dataTask(with: request) {
             (data,response,error) -> Void in
         
-            let result = self.processPhotosRequest(data: data, error: error)
-            OperationQueue.main.addOperation {
-                completion(result)
+            self.processPhotosRequest(data: data, error: error) {
+                (result) in
+                
+                OperationQueue.main.addOperation {
+                    completion(result)
+                }
             }
         }
         task.resume()
@@ -72,7 +118,9 @@ class PhotoStore {
     
     func fetchImage(for photo: Photo, completion: @escaping (ImageResult) -> Void) {
         
-        let photoKey = photo.photoID
+        guard let photoKey = photo.photoID else {
+            preconditionFailure("Photo expected to have a photoID")
+        }
         if let image = imageStore.image(forKey: photoKey) {
             OperationQueue.main.addOperation {
                 completion(.success(image))
@@ -80,8 +128,10 @@ class PhotoStore {
             return
         }
         
-        let photoURL = photo.remoteURL
-        let request = URLRequest(url: photoURL)
+        guard let photoURL = photo.remoteURL else {
+            preconditionFailure("Photo expected to have a remote URL")
+        }
+        let request = URLRequest(url: photoURL as URL)
         
         let task = session.dataTask(with: request) {
             (data, response, error) -> Void in
@@ -97,5 +147,38 @@ class PhotoStore {
             }
         }
         task.resume()
+    }
+    
+    func fetchAllPhotos(completion: @escaping (PhotosResult) -> Void) {
+        let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
+        let sortByDateTaken = NSSortDescriptor(key: #keyPath(Photo.dateTaken),
+                                               ascending: true)
+        fetchRequest.sortDescriptors = [sortByDateTaken]
+        
+        let viewContext = persistentContainer.viewContext
+        viewContext.perform {
+            do {
+                let allPhotos = try viewContext.fetch(fetchRequest)
+                completion(.success(allPhotos))
+            } catch {
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    func fetchAllTags(completion: @escaping (TagsResult) -> Void) {
+        let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
+        let sortByName = NSSortDescriptor(key: #keyPath(Tag.name), ascending: true)
+        fetchRequest.sortDescriptors = [sortByName]
+        
+        let viewContext = persistentContainer.viewContext
+        viewContext.perform {
+            do {
+                let allTags = try fetchRequest.execute()
+                completion(.success(allTags))
+            } catch {
+                completion(.failure(error))
+            }
+        }
     }
 }
