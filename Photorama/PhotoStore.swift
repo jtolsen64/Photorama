@@ -116,6 +116,24 @@ class PhotoStore {
         task.resume()
     }
     
+    func fetchRecentPhotos(completion: @escaping (PhotosResult) -> Void) {
+        
+        let url = FlickrAPI.recentPhotosURL
+        let request = URLRequest(url: url)
+        let task = session.dataTask(with: request) {
+            (data,response,error) -> Void in
+            
+            self.processPhotosRequest(data: data, error: error) {
+                (result) in
+                
+                OperationQueue.main.addOperation {
+                    completion(result)
+                }
+            }
+        }
+        task.resume()
+    }
+    
     func fetchImage(for photo: Photo, completion: @escaping (ImageResult) -> Void) {
         
         guard let photoKey = photo.photoID else {

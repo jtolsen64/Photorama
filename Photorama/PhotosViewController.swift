@@ -30,6 +30,28 @@ class PhotosViewController: UIViewController, UICollectionViewDelegate {
         }
     }
     
+    
+    @IBAction func switchDataSource(_ sender: UISegmentedControl) {
+        switch sender.titleForSegment(at: sender.selectedSegmentIndex)! {
+        case "Recent":
+            print("recent")
+            store.fetchRecentPhotos {
+            (photosResult) -> Void in
+            
+            self.updateDataSource()
+            }
+        case "Interesting":
+            print("interesting")
+            store.fetchInterestingPhotos {
+            (photosResult) -> Void in
+            
+            self.updateDataSource()
+            }
+        default: print("unexepected button pressed")
+        }
+        
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         switch segue.identifier {
         case "showPhoto"?:
